@@ -4,6 +4,9 @@
 # OS X
 *.DS_Store
 
+# Gradle
+.gradle
+
 # Java
 *.jar
 *.war
