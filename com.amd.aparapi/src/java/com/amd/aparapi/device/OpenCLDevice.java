@@ -108,6 +108,10 @@ public class OpenCLDevice extends Device{
     this.name = name;
   }
 
+  public String getPerformanceIdentifier(){
+    return getName() + "_" + getMaxComputeUnits();
+  }
+
   @Override
   public long getDeviceId() {
       return (deviceId);
