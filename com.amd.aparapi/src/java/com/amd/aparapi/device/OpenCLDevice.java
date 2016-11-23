@@ -1,15 +1,33 @@
 package com.amd.aparapi.device;
 
-import com.amd.aparapi.*;
-import com.amd.aparapi.internal.opencl.*;
-import com.amd.aparapi.opencl.*;
-import com.amd.aparapi.opencl.OpenCL.*;
-import com.amd.aparapi.opencl.OpenCL.Kernel;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.io.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
+import com.amd.aparapi.Range;
+import com.amd.aparapi.internal.opencl.OpenCLArgDescriptor;
+import com.amd.aparapi.internal.opencl.OpenCLKernel;
+import com.amd.aparapi.internal.opencl.OpenCLPlatform;
+import com.amd.aparapi.internal.opencl.OpenCLProgram;
+import com.amd.aparapi.opencl.OpenCL;
+import com.amd.aparapi.opencl.OpenCL.Arg;
+import com.amd.aparapi.opencl.OpenCL.Constant;
+import com.amd.aparapi.opencl.OpenCL.GlobalReadOnly;
+import com.amd.aparapi.opencl.OpenCL.GlobalReadWrite;
+import com.amd.aparapi.opencl.OpenCL.GlobalWriteOnly;
+import com.amd.aparapi.opencl.OpenCL.Kernel;
+import com.amd.aparapi.opencl.OpenCL.Local;
+import com.amd.aparapi.opencl.OpenCL.Resource;
+import com.amd.aparapi.opencl.OpenCL.Source;
 
 public class OpenCLDevice extends Device{
 
@@ -27,9 +45,11 @@ public class OpenCLDevice extends Device{
 
    private String shortDescription = null;
 
+   private String name = null;
+
    /**
     * Minimal constructor
-    * 
+    *
     * @param _platform
     * @param _deviceId
     * @param _type
@@ -80,7 +100,16 @@ public class OpenCLDevice extends Device{
       maxWorkItemSize[_dim] = _value;
    }
 
-   public long getDeviceId() {
+   public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public long getDeviceId() {
       return (deviceId);
    }
 
@@ -177,7 +206,7 @@ public class OpenCLDevice extends Device{
             } else if (method.getName().equals("end")) {
                System.out.println("end not implemented");
             }  else if (method.getName().equals("getProfileInfo")){
-               proxy = (Object)program.getProfileInfo();
+               proxy = program.getProfileInfo();
             }
          }
          return proxy;
