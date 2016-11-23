@@ -6,8 +6,8 @@ First consider editing the properties in build.properties
 -->
 <project name="com.amd.aparapi.jni" default="build" basedir=".">
 
-   <!-- 
-   DO NOT EDIT BELOW THIS LINE 
+   <!--
+   DO NOT EDIT BELOW THIS LINE
    -->
    <echo>OS Name:    ${os.name}</echo>
    <echo>OS Version: ${os.version}</echo>
@@ -21,12 +21,12 @@ First consider editing the properties in build.properties
    <property name="ant.build.javac.target" value="1.7"/>
 
    <property name="amd.app.sdk.version" value="2.9-1"/>
-   
+
    <property environment="env" />
-   
+
    <!-- Check for AMD APP SDK -->
    <echo>
-      Note: Since AMD APP SDK 2.9 you can have multiple versions installed/co-exist on same machine, 
+      Note: Since AMD APP SDK 2.9 you can have multiple versions installed/co-exist on same machine,
       so AMD introduced a completely new naming convention for their installation directories
       For example C:/Program Files/AMD APP SDK/2.9-1
    </echo>
@@ -91,7 +91,7 @@ First consider editing the properties in build.properties
       </condition>
 
       <echo message=" intel.app.sdk.dir ${intel.app.sdk.dir}"/>
-      
+
       <available property="freebsd.opencl.exists" file="/usr/local/lib/libOpenCL.so" type="file"/>
       <condition property="freebsd.app.sdk.dir" value="/usr/local">
          <and>
@@ -111,54 +111,54 @@ First consider editing the properties in build.properties
 	    </not>
          </and>
       </condition>
-      
+
       <echo message=" freebsd.app.sdk.dir ${freebsd.app.sdk.dir}"/>
 
       <condition property="vendor.name" value="amd">
-         <isset property="amd.app.sdk.dir" /> 
+         <isset property="amd.app.sdk.dir" />
       </condition>
 
       <condition property="vendor.name" value="intel">
          <and>
-            <isset property="intel.app.sdk.dir" /> 
+            <isset property="intel.app.sdk.dir" />
             <not>
-                <isset property="amd.app.sdk.dir" /> 
+                <isset property="amd.app.sdk.dir" />
             </not>
          </and>
       </condition>
 
       <condition property="vendor.name" value="freebsd">
          <and>
-            <isset property="freebsd.app.sdk.dir" /> 
+            <isset property="freebsd.app.sdk.dir" />
             <not>
-                <isset property="amd.app.sdk.dir" /> 
+                <isset property="amd.app.sdk.dir" />
             </not>
 	    <not>
-                <isset property="intel.app.sdk.dir" /> 
+                <isset property="intel.app.sdk.dir" />
             </not>
          </and>
       </condition>
-      
+
       <echo message=" vendor.name ${vendor.name}"/>
-  
+
       <condition property="app.sdk.dir" value="${amd.app.sdk.dir}">
-         <isset property="amd.app.sdk.dir" /> 
+         <isset property="amd.app.sdk.dir" />
       </condition>
 
       <condition property="app.sdk.dir" value="${intel.app.sdk.dir}">
          <and>
-            <isset property="intel.app.sdk.dir" /> 
+            <isset property="intel.app.sdk.dir" />
             <not>
-                <isset property="app.sdk.dir" /> 
+                <isset property="app.sdk.dir" />
             </not>
          </and>
       </condition>
-      
+
       <condition property="freebsd.sdk.dir" value="${freebsd.app.sdk.dir}">
          <and>
-            <isset property="freebsd.app.sdk.dir" /> 
+            <isset property="freebsd.app.sdk.dir" />
             <not>
-                <isset property="app.sdk.dir" /> 
+                <isset property="app.sdk.dir" />
             </not>
          </and>
       </condition>
@@ -177,7 +177,7 @@ First consider editing the properties in build.properties
             </not>
          </and>
       </condition>
-      
+
       <available property="msvc.64.12.0.exists" file="C:/Program Files (x86)/Microsoft Visual Studio 12.0\VC\bin" type="dir"/>
       <condition property="msvc.dir" value="c:/Program Files (x86)/Microsoft Visual Studio 12.0">
          <and>
@@ -188,7 +188,7 @@ First consider editing the properties in build.properties
             </not>
          </and>
       </condition>
-      
+
 	  <available property="msvc.32.11.0.exists" file="C:/Program Files/Microsoft Visual Studio 11.0\VC\bin" type="dir"/>
       <condition property="msvc.dir" value="c:/Program Files/Microsoft Visual Studio 11.0">
          <and>
@@ -199,7 +199,7 @@ First consider editing the properties in build.properties
             </not>
          </and>
       </condition>
-      
+
       <available property="msvc.64.11.0.exists" file="C:/Program Files (x86)/Microsoft Visual Studio 11.0\VC\bin" type="dir"/>
       <condition property="msvc.dir" value="c:/Program Files (x86)/Microsoft Visual Studio 11.0">
          <and>
@@ -210,7 +210,7 @@ First consider editing the properties in build.properties
             </not>
          </and>
       </condition>
-      
+
       <available property="msvc.32.10.0.exists" file="c:/Program Files/Microsoft Visual Studio 10.0\vc\bin" type="dir"/>
       <condition property="msvc.dir" value="c:/Program Files/Microsoft Visual Studio 10.0">
          <and>
@@ -221,7 +221,7 @@ First consider editing the properties in build.properties
             </not>
          </and>
       </condition>
-      
+
       <available property="msvc.64.10.0.exists" file="c:/Program Files (x86)/Microsoft Visual Studio 10.0\vc\bin" type="dir"/>
       <condition property="msvc.dir" value="c:/Program Files (x86)/Microsoft Visual Studio 10.0">
          <and>
@@ -235,7 +235,7 @@ First consider editing the properties in build.properties
 
 	  <!-- Check for SDKs -->
 	  <!-- This needs to be in descending order to properly handle multiple installations -->
-	
+
       <available property="msvc.sdk.7.1A.32.exists" file="C:/Program Files/Microsoft SDKs/Windows/v7.1A" type="dir"/>
       <condition property="msvc.sdk.dir" value="C:/Program Files/Microsoft SDKs/Windows/v7.1A">
          <and>
@@ -246,7 +246,7 @@ First consider editing the properties in build.properties
             </not>
          </and>
       </condition>
-      
+
       <available property="msvc.sdk.7.1A.64.exists" file="C:/Program Files (x86)/Microsoft SDKs/Windows/v7.1A" type="dir"/>
       <condition property="msvc.sdk.dir" value="C:/Program Files (x86)/Microsoft SDKs/Windows/v7.1A">
          <and>
@@ -257,7 +257,7 @@ First consider editing the properties in build.properties
             </not>
          </and>
       </condition>
-      
+
       <available property="msvc.sdk.7.1.32.exists" file="C:/Program Files/Microsoft SDKs/Windows/v7.1" type="dir"/>
       <condition property="msvc.sdk.dir" value="C:/Program Files/Microsoft SDKs/Windows/v7.1">
          <and>
@@ -340,7 +340,7 @@ First consider editing the properties in build.properties
          At present msvc.sdk.dir seems to be configured but not msvc.dir
          ]]>
       </fail>
-      
+
       <available file="${msvc.dir}" type="dir" property="msvc.dir.exists" />
       <available file="${msvc.sdk.dir}" type="dir" property="msvc.sdk.dir.exists" />
 
@@ -360,7 +360,7 @@ First consider editing the properties in build.properties
          At present msvc.dir is set (to ${msvc.dir}) but that dir does not exist
          ]]>
       </fail>
-      
+
       <fail message="Error:">
          <condition>
             <and>
@@ -377,7 +377,7 @@ First consider editing the properties in build.properties
          At present msvc.sdk.dir is set (to ${msvc.sdk.dir}) but that dir does not exist
          ]]>
       </fail>
-      
+
       <condition property="use.msvc">
          <and>
             <os family="windows" />
@@ -391,7 +391,7 @@ First consider editing the properties in build.properties
             <os family="unix" />
             <not>
                <os family="mac" />
-            </not>	 
+            </not>
 	    <not>
                <os name="FreeBSD" />
             </not>
@@ -401,7 +401,7 @@ First consider editing the properties in build.properties
       <condition property="use.gcc_mac">
          <os family="mac" />
       </condition>
-      
+
       <condition property="use.clang_freebsd">
          <os name="FreeBSD" />
       </condition>
@@ -426,7 +426,7 @@ First consider editing the properties in build.properties
         <equals arg1="${x86_or_x86_64}" arg2="x86"/>
 
      </condition>
-      
+
       <condition property="gcc.m.value" value="32" else="64">
         <equals arg1="${x86_or_x86_64}" arg2="x86"/>
       </condition>
@@ -470,7 +470,7 @@ First consider editing the properties in build.properties
          You need to set app.sdk.dir to point to the location where OpenCL SDK is installed
          ]]>
       </fail>
-      
+
       <available file="${app.sdk.dir}" type="dir" property="app.sdk.dir.exists" />
 
       <fail message="Error:">
@@ -609,8 +609,8 @@ First consider editing the properties in build.properties
          <!-- JDK 6 -->
          <arg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
          <!-- LATEST JDK 7 without JDK 6 -->
-         <arg value="-I/Library/Java/JavaVirtualMachines/jdk1.7.0_67.jdk/Contents/Home/include/" />
-         <arg value="-I/Library/Java/JavaVirtualMachines/jdk1.7.0_67.jdk/Contents/Home/include/darwin/" />
+         <arg value="-I/Library/Java/JavaVirtualMachines/jdk1.8.0_77.jdk/Contents/Home/include/" />
+         <arg value="-I/Library/Java/JavaVirtualMachines/jdk1.8.0_77.jdk/Contents/Home/include/darwin/" />
          <arg value="-Iinclude" />
          <arg value="-Isrc/cpp" />
          <arg value="-Isrc/cpp/runKernel" />
@@ -638,7 +638,7 @@ First consider editing the properties in build.properties
          <arg value="-Wno-write-strings" />
       </exec>
    </target>
-   
+
    <target name="clang_freebsd" if="use.clang_freebsd">
       <mkdir dir="${basedir}/dist"/>
       <echo message="freebsdcc ${os.arch}" />
@@ -779,7 +779,7 @@ First consider editing the properties in build.properties
          <arg value="OpenCL" />
       </exec>
    </target>
-   
+
    <target name="freebsd_cltest" if="use.clang_freebsd">
       <mkdir dir="${basedir}/dist"/>
       <echo message="clang cltest ${os.arch}" />
