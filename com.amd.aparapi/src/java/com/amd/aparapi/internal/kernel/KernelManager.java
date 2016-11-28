@@ -1,11 +1,19 @@
 package com.amd.aparapi.internal.kernel;
 
-import com.amd.aparapi.*;
-import com.amd.aparapi.device.*;
-import com.amd.aparapi.internal.util.*;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 
-import java.lang.reflect.*;
-import java.util.*;
+import com.amd.aparapi.Config;
+import com.amd.aparapi.Kernel;
+import com.amd.aparapi.device.Device;
+import com.amd.aparapi.device.JavaDevice;
+import com.amd.aparapi.device.OpenCLDevice;
+import com.amd.aparapi.internal.util.Reflection;
 
 /**
  * Created by Barney on 24/08/2015.
@@ -75,7 +83,7 @@ public class KernelManager {
       builder.append("\n\n");
       for (PreferencesWrapper wrapper : preferences.values()) {
          KernelPreferences preferences = wrapper.getPreferences();
-         Class<? extends Kernel> klass = wrapper.getKernel().getClass();
+         Class<? extends Kernel> klass = wrapper.getKernelClass();
          KernelProfile profile = withProfilingInfo ? profiles.get(klass) : null;
          builder.append(klass.getName()).append(":\n\tusing ").append(preferences.getPreferredDevice(null).getShortDescription());
          List<Device> failedDevices = preferences.getFailedDevices();
@@ -129,7 +137,7 @@ public class KernelManager {
          KernelPreferences kernelPreferences;
          if (wrapper == null) {
             kernelPreferences = new KernelPreferences(this, kernel.getClass());
-            preferences.put(kernel.hashCode(), new PreferencesWrapper(kernel, kernelPreferences));
+            preferences.put(kernel.hashCode(), new PreferencesWrapper(kernel.getClass(), kernelPreferences));
          }else{
            kernelPreferences = preferences.get(kernel.hashCode()).getPreferences();
          }
