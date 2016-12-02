@@ -1,9 +1,11 @@
 package com.amd.aparapi.internal.opencl;
 
-import com.amd.aparapi.device.*;
-import com.amd.aparapi.internal.jni.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import java.util.*;
+import com.amd.aparapi.device.OpenCLDevice;
+import com.amd.aparapi.internal.jni.OpenCLJNI;
 
 public class OpenCLPlatform extends OpenCLJNI{
 
@@ -30,7 +32,7 @@ public class OpenCLPlatform extends OpenCLJNI{
 
    /**
     * Full constructor
-    * 
+    *
     * @param _platformId
     * @param _version
     * @param _vendor
@@ -60,6 +62,12 @@ public class OpenCLPlatform extends OpenCLJNI{
          }
       }
       return platforms;
+   }
+
+   public static List<OpenCLPlatform> getUncachedOpenCLPlatforms(){
+       platforms = null;
+       platforms = new OpenCLPlatform().getOpenCLPlatforms();
+       return platforms;
    }
 
    public String getName() {
