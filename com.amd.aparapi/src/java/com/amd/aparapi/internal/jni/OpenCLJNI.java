@@ -18,7 +18,7 @@ public abstract class OpenCLJNI{
    protected native List<OpenCLPlatform> getPlatforms();
 
    protected native OpenCLProgram createProgram(OpenCLDevice context, String openCLSource);
-
+   
    protected native OpenCLKernel createKernelJNI(OpenCLProgram program, String kernelName, OpenCLArgDescriptor[] args);
 
    protected native void invoke(OpenCLKernel openCLKernel, Object[] args);
@@ -34,4 +34,6 @@ public abstract class OpenCLJNI{
    protected native byte[] getBytes(String className);
 
    protected native void getMem(OpenCLProgram program, OpenCLMem mem);
+   
+   protected native void addNode(OpenCLPlatform platform, String url);
 }

@@ -48,7 +48,7 @@
 #include <iostream>
 
 #include "com_amd_aparapi_internal_jni_OpenCLJNI.h"
-
+#include "cl_wwu_dcl.h"
 
 jobject OpenCLDevice::getPlatformInstance(JNIEnv *jenv, jobject deviceInstance){
    return(JNIHelper::getInstanceField<jobject>(jenv, deviceInstance, "platform", OpenCLPlatformClassArg ));
@@ -86,6 +86,14 @@ void OpenCLRange::fill(JNIEnv *jenv, jobject rangeInstance, jint dims, size_t* o
       globalDims[i] = JNIHelper::getInstanceField<jint>(jenv, rangeInstance, globalSize(i));
    }
 }
+
+JNI_JAVA(void, OpenCLJNI, addNode)
+   (JNIEnv *jenv, jobject jobj, jobject platformInstance, jstring url) {
+     const char* url_chars = jenv->GetStringUTFChars(url, NULL);
+     cl_platform_id platformId = OpenCLPlatform::getPlatformId(jenv, platformInstance);
+     clCreateComputeNodeWWU(platformId, url_chars, NULL, NULL, NULL);
+   }
+
 
 JNI_JAVA(jobject, OpenCLJNI, createProgram)
    (JNIEnv *jenv, jobject jobj, jobject deviceInstance, jstring source, jstring binaryKey) {

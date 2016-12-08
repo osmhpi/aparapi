@@ -559,6 +559,7 @@ First consider editing the properties in build.properties
 
    <target name="gcc" if="use.gcc">
       <mkdir dir="${basedir}/dist"/>
+      <echo message="DCL_HOME: ${env.DCL_HOME}" />
       <echo message="linuxcc ${os.arch}" />
       <exec executable="g++" failonerror="true">
          <arg value="-m${gcc.m.value}" />
@@ -573,6 +574,8 @@ First consider editing the properties in build.properties
          <arg value="-Isrc/cpp" />
          <arg value="-Isrc/cpp/runKernel" />
          <arg value="-Isrc/cpp/invoke" />
+         <arg value="-I${env.DCL_HOME}/dclasio/include/CL" />
+
          <arg value="-shared" />
          <arg value="-o" />
          <arg value="${basedir}/dist/libaparapi_${x86_or_x86_64}.so" />
@@ -593,6 +596,7 @@ First consider editing the properties in build.properties
          <arg value="src/cpp/agent.cpp" />
          <arg value="-L${app.sdk.dir}/lib/${x86_or_x86_64}" />
          <arg value="-L${app.sdk.dir}/${optional.app.sdk.lib.subdir}" />
+         <arg value="-L${env.DCL_HOME}/dclasio/" />
          <arg value="-lOpenCL" />
       </exec>
    </target>
