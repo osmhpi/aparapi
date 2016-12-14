@@ -35,5 +35,6 @@ public abstract class OpenCLJNI{
 
    protected native void getMem(OpenCLProgram program, OpenCLMem mem);
    
-   protected native void addNode(OpenCLPlatform platform, String url);
+   protected native List<OpenCLDevice> addNode(OpenCLPlatform platform, String url);
+   
 }

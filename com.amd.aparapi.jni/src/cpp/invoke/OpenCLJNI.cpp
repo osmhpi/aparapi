@@ -48,7 +48,7 @@
 #include <iostream>
 
 #include "com_amd_aparapi_internal_jni_OpenCLJNI.h"
-#include "cl_wwu_dcl.h"
+#include <CL/cl_wwu_dcl.h>
 
 jobject OpenCLDevice::getPlatformInstance(JNIEnv *jenv, jobject deviceInstance){
    return(JNIHelper::getInstanceField<jobject>(jenv, deviceInstance, "platform", OpenCLPlatformClassArg ));
@@ -87,13 +87,33 @@ void OpenCLRange::fill(JNIEnv *jenv, jobject rangeInstance, jint dims, size_t* o
    }
 }
 
-JNI_JAVA(void, OpenCLJNI, addNode)
+JNI_JAVA(jobject, OpenCLJNI, addNode)
    (JNIEnv *jenv, jobject jobj, jobject platformInstance, jstring url) {
+     jobject deviceListInstance = JNIHelper::createInstance(jenv, ArrayListClass, VoidReturn);
+
      const char* url_chars = jenv->GetStringUTFChars(url, NULL);
      cl_platform_id platformId = OpenCLPlatform::getPlatformId(jenv, platformInstance);
-     clCreateComputeNodeWWU(platformId, url_chars, NULL, NULL, NULL);
-   }
+     cl_device_id nodeDevices[100];
 
+     cl_uint num_devices;
+     cl_compute_node_WWU compute_node = clCreateComputeNodeWWU(platformId, url_chars, NULL, NULL, NULL);
+
+     clGetDeviceIDsFromComputeNodeWWU(compute_node, CL_DEVICE_TYPE_ALL, 100, nodeDevices, &num_devices);
+
+     for(int i = 0;i<num_devices;i++){
+        jlong id = (unsigned long)nodeDevices[i];
+        jobject deviceTypeEnumInstance = JNIHelper::getStaticFieldObject(jenv, DeviceTypeClass, "UNKNOWN", DeviceTypeClassArg);
+
+        jobject deviceInstance = JNIHelper::createInstance(jenv, OpenCLDeviceClass, ArgsVoidReturn( OpenCLPlatformClassArg LongArg DeviceTypeClassArg  ),
+              platformInstance,
+              id,
+              deviceTypeEnumInstance);
+
+        JNIHelper::callVoid(jenv, deviceListInstance, "add", ArgsBooleanReturn(ObjectClassArg), deviceInstance);
+     }
+
+     return (deviceListInstance);
+   }
 
 JNI_JAVA(jobject, OpenCLJNI, createProgram)
    (JNIEnv *jenv, jobject jobj, jobject deviceInstance, jstring source, jstring binaryKey) {
