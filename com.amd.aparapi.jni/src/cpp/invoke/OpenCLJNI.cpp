@@ -115,6 +115,27 @@ JNI_JAVA(jobject, OpenCLJNI, addNode)
      return (deviceListInstance);
    }
 
+JNI_JAVA(void, OpenCLJNI, removeNode)
+  (JNIEnv *jenv, jobject jobj, jobject platformInstance, jlong deviceId) {
+    cl_platform_id platformId = OpenCLPlatform::getPlatformId(jenv, platformInstance);
+
+    cl_compute_node_WWU compute_nodes[100];
+    cl_uint num_compute_nodes;
+    clGetComputeNodesWWU(platformId, 100, compute_nodes, &num_compute_nodes);
+
+    for(int i = 0; i < num_compute_nodes; i++){
+      cl_device_id devices[100];
+      cl_uint deviceCount;
+      clGetDeviceIDsFromComputeNodeWWU(compute_nodes[i], CL_DEVICE_TYPE_ALL, 100, devices, &deviceCount);
+      for(int n = 0;n<deviceCount;n++){
+         jlong id = (unsigned long)devices[i];
+         if(id == deviceId){
+           clReleaseComputeNodeWWU(compute_nodes[i]);
+         }
+      }
+    }
+  }
+
 JNI_JAVA(jobject, OpenCLJNI, createProgram)
    (JNIEnv *jenv, jobject jobj, jobject deviceInstance, jstring source, jstring binaryKey) {
 

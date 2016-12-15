@@ -37,4 +37,6 @@ public abstract class OpenCLJNI{
    
    protected native List<OpenCLDevice> addNode(OpenCLPlatform platform, String url);
    
+   protected native void removeNode(OpenCLPlatform platform, long deviceId);
+   
 }
