@@ -2395,6 +2395,10 @@ public abstract class Kernel implements Cloneable {
       return prepareKernelRunner().isExplicit();
    }
 
+   public long getTransferredDataSize(){
+     return prepareKernelRunner().getTransferredDataSize();
+   }
+
    /**
     * Tag this array so that it is explicitly enqueued before the kernel is executed
     * @param array

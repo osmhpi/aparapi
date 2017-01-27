@@ -6,70 +6,93 @@ Redistribution and use in source and binary forms, with or without modification,
 following conditions are met:
 
 Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-disclaimer. 
+disclaimer.
 
 Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
-disclaimer in the documentation and/or other materials provided with the distribution. 
+disclaimer in the documentation and/or other materials provided with the distribution.
 
 Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products
-derived from this software without specific prior written permission. 
+derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
 INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
 SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 If you use the software (in whole or in part), you shall adhere to all applicable U.S., European, and other export
 laws, including but not limited to the U.S. Export Administration Regulations ("EAR"), (15 C.F.R. Sections 730 through
 774), and E.U. Council Regulation (EC) No 1334/2000 of 22 June 2000.  Further, pursuant to Section 740.6 of the EAR,
-you hereby certify that, except pursuant to a license granted by the United States Department of Commerce Bureau of 
-Industry and Security or as otherwise permitted pursuant to a License Exception under the U.S. Export Administration 
+you hereby certify that, except pursuant to a license granted by the United States Department of Commerce Bureau of
+Industry and Security or as otherwise permitted pursuant to a License Exception under the U.S. Export Administration
 Regulations ("EAR"), you will not (1) export, re-export or release to a national of a country in Country Groups D:1,
 E:1 or E:2 any restricted technology, software, or source code you receive hereunder, or (2) export to Country Groups
 D:1, E:1 or E:2 the direct product of such technology or software, if such foreign produced direct product is subject
 to national security controls as identified on the Commerce Control List (currently found in Supplement 1 to Part 774
 of EAR).  For the most current Country Group listings, or for additional information about the EAR or your obligations
-under those regulations, please refer to the U.S. Bureau of Industry and Security's website at http://www.bis.doc.gov/. 
+under those regulations, please refer to the U.S. Bureau of Industry and Security's website at http://www.bis.doc.gov/.
 
 */
 package com.amd.aparapi.internal.kernel;
 
-import com.amd.aparapi.*;
-import com.amd.aparapi.Kernel.Constant;
-import com.amd.aparapi.Kernel.*;
-import com.amd.aparapi.device.*;
-import com.amd.aparapi.internal.annotation.*;
-import com.amd.aparapi.internal.exception.*;
-import com.amd.aparapi.internal.instruction.InstructionSet.*;
-import com.amd.aparapi.internal.jni.*;
-import com.amd.aparapi.internal.model.*;
-import com.amd.aparapi.internal.util.*;
-import com.amd.aparapi.internal.writer.*;
-import com.amd.aparapi.opencl.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
+import java.util.concurrent.ForkJoinPool.ManagedBlocker;
+import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import java.lang.reflect.*;
-import java.nio.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.ForkJoinPool.*;
-import java.util.logging.*;
+import com.amd.aparapi.Config;
+import com.amd.aparapi.Kernel;
+import com.amd.aparapi.Kernel.Constant;
+import com.amd.aparapi.Kernel.EXECUTION_MODE;
+import com.amd.aparapi.Kernel.KernelState;
+import com.amd.aparapi.Kernel.Local;
+import com.amd.aparapi.ProfileInfo;
+import com.amd.aparapi.Range;
+import com.amd.aparapi.device.Device;
+import com.amd.aparapi.device.JavaDevice;
+import com.amd.aparapi.device.OpenCLDevice;
+import com.amd.aparapi.internal.annotation.UsedByJNICode;
+import com.amd.aparapi.internal.exception.AparapiException;
+import com.amd.aparapi.internal.exception.CodeGenException;
+import com.amd.aparapi.internal.instruction.InstructionSet.TypeSpec;
+import com.amd.aparapi.internal.jni.KernelRunnerJNI;
+import com.amd.aparapi.internal.model.ClassModel;
+import com.amd.aparapi.internal.model.Entrypoint;
+import com.amd.aparapi.internal.util.UnsafeWrapper;
+import com.amd.aparapi.internal.writer.KernelWriter;
+import com.amd.aparapi.opencl.OpenCL;
 
 /**
  * The class is responsible for executing <code>Kernel</code> implementations. <br/>
- * 
+ *
  * The <code>KernelRunner</code> is the real workhorse for Aparapi.  Each <code>Kernel</code> instance creates a single
- * <code>KernelRunner</code> to encapsulate state and to help coordinate interactions between the <code>Kernel</code> 
+ * <code>KernelRunner</code> to encapsulate state and to help coordinate interactions between the <code>Kernel</code>
  * and it's execution logic.<br/>
- * 
- * The <code>KernelRunner</code> is created <i>lazily</i> as a result of calling <code>Kernel.execute()</code>. A this 
- * time the <code>ExecutionMode</code> is consulted to determine the default requested mode.  This will dictate how 
+ *
+ * The <code>KernelRunner</code> is created <i>lazily</i> as a result of calling <code>Kernel.execute()</code>. A this
+ * time the <code>ExecutionMode</code> is consulted to determine the default requested mode.  This will dictate how
  * the <code>KernelRunner</code> will attempt to execute the <code>Kernel</code>
- *   
+ *
  * @see com.amd.aparapi.Kernel#execute(int _globalSize)
- * 
+ *
  * @author gfrost
  *
  */
@@ -137,7 +160,7 @@ public class KernelRunner extends KernelRunnerJNI{
 
    /**
     * Create a KernelRunner for a specific Kernel instance.
-    * 
+    *
     * @param _kernel
     */
    public KernelRunner(Kernel _kernel) {
@@ -184,7 +207,7 @@ public class KernelRunner extends KernelRunnerJNI{
 
    /**
     * <code>Kernel.dispose()</code> delegates to <code>KernelRunner.dispose()</code> which delegates to <code>disposeJNI()</code> to actually close JNI data structures.<br/>
-    * 
+    *
     * @see KernelRunnerJNI#disposeJNI(long)
     */
    public synchronized void dispose() {
@@ -632,6 +655,7 @@ public class KernelRunner extends KernelRunnerJNI{
                      threadPool.submit(
                      //                     () -> {
                      new Runnable() {
+                        @Override
                         public void run() {
                            try {
                               for (int globalGroupId = 0; globalGroupId < globalGroups; globalGroupId++) {
@@ -676,7 +700,7 @@ public class KernelRunner extends KernelRunnerJNI{
    private boolean usesOopConversion = false;
 
    /**
-    * 
+    *
     * @param arg
     * @return
     * @throws AparapiException
@@ -987,7 +1011,7 @@ public class KernelRunner extends KernelRunnerJNI{
                arg.setArray(newArrayRef);
                assert arg.getArray() != null : "null array ref";
             } else if ((arg.getType() & ARG_APARAPI_BUFFER) != 0) {
-               // TODO: check if the 2D/3D array is changed. 
+               // TODO: check if the 2D/3D array is changed.
                //   can Arrays.equals help?
                needsSync = true; // Always need syn
                Object buffer = new Object();
@@ -1510,7 +1534,7 @@ public class KernelRunner extends KernelRunnerJNI{
             if (!(device instanceof JavaDevice)) {
                fallBackToNextDevice(_settings, "Non-OpenCL Kernel.EXECUTION_MODE requested but device is not a JavaDevice ");
             }
-            executeJava(_settings, (JavaDevice) device);
+            executeJava(_settings, device);
          }
 
          if (Config.enableExecutionModeReporting) {
@@ -1683,10 +1707,10 @@ public class KernelRunner extends KernelRunnerJNI{
     * Note that <code>Kernel.put(type [])</code> calls will delegate to this call.
     * <br/>
     * Package public
-    * 
+    *
     * @param array
     *          It is assumed that this parameter is indeed an array (of int, float, short etc).
-    * 
+    *
     * @see Kernel#get(int[] arr)
     * @see Kernel#get(float[] arr)
     * @see Kernel#get(double[] arr)
@@ -1698,6 +1722,8 @@ public class KernelRunner extends KernelRunnerJNI{
       if (explicit && (kernel.isRunningCL())) {
         // Only makes sense when we are using OpenCL
          getJNI(jniContextHandle, array);
+         if(transferredBytes == -1) transferredBytes = 0;
+         transferredBytes += getArrayLength(array) * getObjectSize(array.getClass());
       }
    }
 
@@ -1714,7 +1740,7 @@ public class KernelRunner extends KernelRunnerJNI{
     * Tag this array so that it is explicitly enqueued before the kernel is executed. <br/>
     * Note that <code>Kernel.put(type [])</code> calls will delegate to this call. <br/>
     * Package public
-    * 
+    *
     * @param array
     *          It is assumed that this parameter is indeed an array (of int, float, short etc).
     * @see Kernel#put(int[] arr)
@@ -1724,12 +1750,52 @@ public class KernelRunner extends KernelRunnerJNI{
     * @see Kernel#put(char[] arr)
     * @see Kernel#put(boolean[] arr)
     */
+   private long transferredBytes = -1;
 
    public void put(Object array) {
       if (explicit && (kernel.isRunningCL())) {
          // Only makes sense when we are using OpenCL
          puts.add(array);
+         if(transferredBytes == -1) transferredBytes = 0;
+         transferredBytes += getArrayLength(array) * getObjectSize(array.getClass());
       }
+   }
+
+   public long getTransferredDataSize(){
+     return transferredBytes;
+   }
+
+   private long getArrayLength(Object value){
+     long length = Array.getLength(value);
+
+     while(value.getClass().isArray()){
+       value = Array.get(value, 0);
+       if(value.getClass().isArray()){
+         length = length * Array.getLength(value);
+       }
+     }
+     return length;
+   }
+
+   private long getObjectSize(Class<?> type){
+     String typeString = type.toString().replace("class [", "").replace("[", "");
+     if(typeString.length() == 1){
+       TypeSpec spec = TypeSpec.valueOf(typeString);
+       return spec.getSize();
+     }else{
+       long bytes = 0;
+       for(Field nestedField:type.getComponentType().getDeclaredFields()){
+         if(nestedField.getType().isPrimitive()){
+           for(TypeSpec typeSpec:TypeSpec.values()){
+             if(typeSpec.getLongName().equals(nestedField.getType().toString())){
+               bytes += typeSpec.getSize();
+               break;
+             }
+           }
+         }
+       }
+       return bytes;
+     }
    }
 
    private boolean explicit = false;
