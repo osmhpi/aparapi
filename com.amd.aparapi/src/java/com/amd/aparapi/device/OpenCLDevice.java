@@ -47,6 +47,8 @@ public class OpenCLDevice extends Device{
 
    private String name = null;
 
+   private boolean isCloudDevice = false;
+
    /**
     * Minimal constructor
     *
@@ -106,6 +108,14 @@ public class OpenCLDevice extends Device{
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public boolean isCloudDevice() {
+    return isCloudDevice;
+  }
+
+  public void setCloudDevice(boolean isCloudDevice) {
+    this.isCloudDevice = isCloudDevice;
   }
 
   public String getPerformanceIdentifier(){
