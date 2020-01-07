@@ -17,8 +17,8 @@ public abstract class OpenCLJNI{
 
    protected native List<OpenCLPlatform> getPlatforms();
 
-   protected native OpenCLProgram createProgram(OpenCLDevice context, String openCLSource);
-   
+   protected native OpenCLProgram createProgram(OpenCLDevice context, String openCLSource, String binaryKey);
+
    protected native OpenCLKernel createKernelJNI(OpenCLProgram program, String kernelName, OpenCLArgDescriptor[] args);
 
    protected native void invoke(OpenCLKernel openCLKernel, Object[] args);
