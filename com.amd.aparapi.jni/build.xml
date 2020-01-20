@@ -22,7 +22,7 @@ First consider editing the properties in build.properties
    <property environment="env" />
 
 
-   <target name="clean" depends="check">
+   <target name="clean">
       <delete dir="include" />
       <delete dir="${basedir}/dist" />
       <!-- Legacy cleanup -->
