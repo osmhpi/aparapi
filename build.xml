@@ -9,7 +9,7 @@
    <condition property="dist" value="dist_mac_${x86_or_x86_64}"><os family="mac" /></condition>
    <condition property="dist" value="dist_freebsd_${x86_or_x86_64}"><os name="FreeBSD" /></condition>
 		
-   <target name="help">
+   <target name="my_help">
       <echo message="Available targets are:-"/> 
       <echo message="   clean"/> 
       <echo message="      Clean the com.amd.aparapi and com.amd.aparapi.jni subdirs."/> 
