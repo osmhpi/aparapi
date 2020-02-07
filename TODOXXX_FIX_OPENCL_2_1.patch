@@ -1,0 +1,19 @@
+This patch should make Aparapi work on OpenCL 2.1 (present e.g. on many Intel integrated GPUs).
+A similar patch is also in Syncleus aparapi fork..
+See: https://git.qoto.org/aparapi/aparapi-native/commit/be33104457f540a4b50796a9db4e852ef37aee7f
+
+TODOXXX: Either cherry-pick this patch into out Aparapi fork, limit this as a documentation,
+         or update our tree from Syncleus or a similar fork
+
+diff --git a/com.amd.aparapi.jni/src/cpp/invoke/OpenCLJNI.cpp b/com.amd.aparapi.jni/src/cpp/invoke/OpenCLJNI.cpp
+index 7cba6f3..7da35ed 100644
+--- a/com.amd.aparapi.jni/src/cpp/invoke/OpenCLJNI.cpp
++++ b/com.amd.aparapi.jni/src/cpp/invoke/OpenCLJNI.cpp
+@@ -491,6 +491,7 @@ JNI_JAVA(jobject, OpenCLJNI, getPlatforms)
+             if (   !strncmp(platformVersionName, "OpenCL 1.2", 10)
+                 || !strncmp(platformVersionName, "OpenCL 1.1", 10)
+ 				|| !strncmp(platformVersionName, "OpenCL 2.0", 10)
++				|| !strncmp(platformVersionName, "OpenCL 2.1", 10)
+ #ifdef __APPLE__
+                 || !strncmp(platformVersionName, "OpenCL 1.0", 10)
+ #endif
