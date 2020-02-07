@@ -12,10 +12,10 @@
 	<property name="lucene.jar" value="lucene-core-3.5.0.jar" />
 	<property name="junit.jar" value="junit-4.10.jar" />
 
-	<property name="commons.lang.url" value="http://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.1/${commons.lang.jar}" />
-	<property name="log4j.url" value="http://repo1.maven.org/maven2/log4j/log4j/1.2.17/${log4j.jar}" />
-	<property name="lucene.url" value="http://repo1.maven.org/maven2/org/apache/lucene/lucene-core/3.5.0/${lucene.jar}" />
-	<property name="junit.url" value="http://repo1.maven.org/maven2/junit/junit/4.10/${junit.jar}" />
+	<property name="commons.lang.url" value="https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.1/${commons.lang.jar}" />
+	<property name="log4j.url" value="https://repo1.maven.org/maven2/log4j/log4j/1.2.17/${log4j.jar}" />
+	<property name="lucene.url" value="https://repo1.maven.org/maven2/org/apache/lucene/lucene-core/3.5.0/${lucene.jar}" />
+	<property name="junit.url" value="https://repo1.maven.org/maven2/junit/junit/4.10/${junit.jar}" />
 
 	<!-- 
 			SYSTEM PROPERTIES

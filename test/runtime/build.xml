@@ -8,7 +8,7 @@
 	<property name="junit.jar.version" value="4.10" />
 	<property name="junit.jar.name" value="junit-${junit.jar.version}.jar" />
 	<property name="junit.home" value="${basedir}/.libs" />
-	<property name="junit.base.url" value="http://repo1.maven.org/maven2/junit/junit" />
+	<property name="junit.base.url" value="https://repo1.maven.org/maven2/junit/junit" />
 
 	<!-- 
          DO NOT EDIT BELOW THIS LINE 
