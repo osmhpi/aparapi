@@ -1,0 +1,24 @@
+Dirty hack to get Aparapi to work on ppc64le.
+
+There are quite a few places in the build process where it's assumed that the architecture if x86 or x86_64.
+However, the code never actually depends on the architecture, rather, it's just to manage some hardcoded paths to dependencies, mostly on Windows.
+
+On ppc64le, the build completes, but the shared library is generated with the _x86_64 prefix (even though it's a ppc64 library).
+Later, OpenCLLoader complains about the architecture. This just makes OpenCLLoader read the library generated during the build so everything works.
+
+Right long-term fix would be to make the build process more flexible for other architectures.
+It's also worthwhile to check if this has been fixed in the active Syncleus/aparapi fork.
+
+diff --git a/com.amd.aparapi/src/java/com/amd/aparapi/internal/opencl/OpenCLLoader.java b/com.amd.aparapi/src/java/com/amd/aparapi/internal/opencl/OpenCLLoader.java
+index 3514c9d..d214522 100644
+--- a/com.amd.aparapi/src/java/com/amd/aparapi/internal/opencl/OpenCLLoader.java
++++ b/com.amd.aparapi/src/java/com/amd/aparapi/internal/opencl/OpenCLLoader.java
+@@ -26,7 +26,7 @@ public class OpenCLLoader extends OpenCLJNI{
+          logger.fine("arch = " + arch);
+          String aparapiLibraryName = null;
+ 
+-         if (arch.equals("amd64") || arch.equals("x86_64")) {
++         if (arch.equals("amd64") || arch.equals("x86_64") || true) {
+             aparapiLibraryName = "aparapi_x86_64";
+          } else if (arch.equals("x86") || arch.equals("i386")) {
+             aparapiLibraryName = "aparapi_x86";
