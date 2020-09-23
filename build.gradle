@@ -1,1 +1,20 @@
+// Fix the execution of the tests from the Gradle-imported Ant build
+// See https://discuss.gradle.org/t/ant-imports-taskdefs-failed-to-create-task-or-type-junit/7517/5
+repositories {
+    mavenCentral()
+}
+configurations {
+    junitAnt
+}
+dependencies {
+    junitAnt 'junit:junit:4.10'
+    junitAnt('org.apache.ant:ant-junit:1.10.7') {
+        transitive = false
+    }
+}
+ant.taskdef(name: 'junit', classname: 'org.apache.tools.ant.taskdefs.optional.junit.JUnitTask',
+            classpath: configurations.junitAnt.asPath)
+ant.taskdef(name: 'junitreport', classname: 'org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator',
+            classpath: configurations.junitAnt.asPath)
+
 ant.importBuild 'build.xml'
